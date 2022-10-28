@@ -1,0 +1,79 @@
+<div class="columns">
+    <div class="column">
+        <div class="card is-horizontal shadow-md transform is-duration-300 hover-shadow-xl hover-translate-y">
+            <div class="card-image">
+                <figure class="image">
+                  <img src="{{post.coverImage?.url ?? "/assets/cover_placeholder.png"}}"
+                        alt="Cover image">
+                </figure>
+            </div>
+            <div class="card-content p-0 is-flex is-flex-direction-column">
+                <div class="content p-5 has-background-info-light is-desktop mb-0">
+                    <div class="columns">
+                       @if(post.user.profile?.avatar?.url != null)
+                        <div class="column pb-0 is-narrow">
+                          <img class="avatar" src="{{post.user.profile?.avatar?.url}}" alt="user avatar"/>
+                        </div>
+                       @end
+                        <div class="column">
+                            <div class="is-size-6">
+                              <a href="/{{post.user.username}}">
+                                <span class="has-text-weight-semibold">{{post.user.profile?.name}}</span>
+                                <span class="has-text-grey">{{"@"+post.user.username}}</span>
+                              </a>
+                            </div>
+                            <div class="is-size-6">
+                              {{post.updatedAt.toRelative()}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="content p-5 has-text-grey-light mb-0">
+                  <h3><a href="/{{post.user.username}}/{{post.slug}}">{{post.title}}</a></h3>
+                  <p class="is-size-6 has-text-weight-normal">{{excerpt(post.content, 200)}}</p>
+                </div>
+                @if(auth.user != null)
+                  <div
+                    v-scope="PostNav({ postId: {{post.id}}, username: '{{post.user.username}}' })"
+                    class="content p-5 has-background-info-light is-desktop mb-0">
+                    <div class="field has-addons">
+                      @if(!await bouncer.allows("ownsPost", post))
+                        @component("components/actionBtn", { onclick: "likePost" })
+                          {{{icon("heart")}}}
+                        @end
+                        @component("components/actionBtn", { onclick: "savePost" })
+                          {{{icon("bookmark")}}}
+                        @end
+                      @end
+                    </div>
+                  </div>
+                @end
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- <div class="card">
+  <div class="card-content">
+    <div class="media-content">
+      @if(post.user.profile?.name != null)
+        <span class="is-6 has-text-grey-darker">{{post.user.profile.name}}</span>
+      @end
+      <span class="is-6 has-text-grey">
+        <a class="has-text-grey" href="/{{post.user.username}}">{{"@"+post.user.username}}</a>
+        <span>
+          • {{post.createdAt.toRelative()}}
+        </span>
+      </span>
+      <h1 class="title is-4">
+        <a href="/{{post.user.username}}/{{post.slug}}">{{post.title}}</a>
+      </h1>
+    </div>
+    <div class="content">{{excerpt(post.content)}}</div>
+    <nav class="level">
+      <div class="level-left">
+      </div>
+    </nav>
+  </div>
+</div> -->

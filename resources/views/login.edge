@@ -1,0 +1,37 @@
+@layout("layouts/main")
+@set("title", "Login")
+
+@section("body")
+  @include("partials/header")
+  <section class="section">
+    <h1 class="title">Login</h1>
+    <div>
+      <form action="/login" method="POST">
+        {{csrfField()}}
+        <div class="field">
+          <div class="control">
+            <input class="input" type="text" placeholder="Username" name="username">
+          </div>
+        </div>
+        <div class="field">
+          <div class="control">
+            <input class="input" type="password" placeholder="Password" name="password">
+          </div>
+        </div>
+        <div class="field">
+          <div class="control">
+            <label class="checkbox">
+              <input type="checkbox" name="remember" id="remember">
+              Remember me
+            </label>
+          </div>
+        </div>
+        <div class="field">
+          <div class="control">
+            <button type="submit" class="button is-link">Login</button>
+          </div>
+        </div>
+        <a href="/signup">Create an account</a>
+      </form>
+    </div></section>
+@end

@@ -1,0 +1,8 @@
+{
+  "assets/app.css": "http://localhost:8080/assets/app.css",
+  "assets/app.js": "http://localhost:8080/assets/app.js",
+  "assets/fonts/poppins-all-400-normal.woff": "http://localhost:8080/assets/fonts/poppins-all-400-normal.6fbfdac9.woff",
+  "assets/fonts/poppins-devanagari-400-normal.woff2": "http://localhost:8080/assets/fonts/poppins-devanagari-400-normal.64d5f06e.woff2",
+  "assets/fonts/poppins-latin-400-normal.woff2": "http://localhost:8080/assets/fonts/poppins-latin-400-normal.405055dd.woff2",
+  "assets/fonts/poppins-latin-ext-400-normal.woff2": "http://localhost:8080/assets/fonts/poppins-latin-ext-400-normal.4f38b433.woff2"
+}

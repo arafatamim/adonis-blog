@@ -1,0 +1,59 @@
+@layout("layouts/main")
+@set("title", "Edit - " + post.title)
+
+@section("body")
+  @include("partials/header")
+  <section class="section">
+    <h1 class="title">Edit post</h1>
+    <form id="create-post" method="POST" action="/api/post/{{post.id}}?_method=PUT" enctype="multipart/form-data">
+      {{csrfField()}}
+      <div class="field">
+        <label for="postTitle" class="label">Title</label>
+        <div class="control">
+          <input disabled type="text" class="input" name="title" value="{{post.title}}">
+        </div>
+      </div>
+
+      <div class="field" v-scope="FileUpload({ imageUrl: {{ nullableStr(post.coverImage?.url) }} })">
+        <label for="coverImage" class="label">Cover image</label>
+        <img v-if="fileUrl != null" :src="fileUrl" alt="Cover image" style="max-height: 500px;">
+        <div class="control file" :class="{ 'has-name': fileName != null }">
+          <label class="file-label">
+            <input type="file" name="coverImage" accept="image/*" class="file-input" @change="onFileInput" />
+            <span class="file-cta">
+              <span class="file-icon">
+                {{{icon("upload")}}}
+              </span>
+              <span class="file-label">
+                Choose a new file...
+              </span>
+            </span>
+            <span v-if="fileName" class="file-name" :title="fileName">
+              @{{ fileName }}
+            </span>
+          </label>
+        </div>
+        <p class="help">Max filesize: 500KB. Accepted filetypes: jpg, png, webp</p>
+      </div>
+
+      <div class="field">
+        <label for="postContent" class="label">Body</label>
+        <div class="control">
+          <textarea class="textarea is-family-code" name="body" rows="10">{{post.content}}</textarea>
+        </div>
+      </div>
+
+      <div class="field is-grouped">
+        <div class="control">
+          <button type="submit" name="action" value="publish" class="button is-primary">Save</button>
+        </div>
+        <div class="control">
+          <button type="submit" name="action" value="draft" class="button">Unpublish</button>
+        </div>
+        <div class="control">
+          <button type="submit" name="action" value="delete" name="delete" class="button is-danger">Delete</button>
+        </div>
+      </div>
+    </form>
+  </section>
+@end

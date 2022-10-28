@@ -1,0 +1,49 @@
+<div class="card" v-scope="PostNav({postId: {{post.id}}, username: '{{user.username}}'})">
+  <div class="card-content">
+    <div class="media-content">
+      <div class="title is-4">
+        <a href="/{{user.username}}/{{post.slug}}">{{post.title}}</a>
+        @if(!post.published)
+          &nbsp;<span class="tag is-warning">Draft</span>
+          @end
+        </div>
+    </div>
+    <div class="content">{{excerpt(post.content)}}</div>
+    <div class="level">
+      <div class="level-left">
+        <div class="field level-item has-addons">
+          @if(await bouncer.allows("ownsPost", post))
+            <p class="control">
+              <a class="button is-small is-link" href="/{{user.username}}/{{post.slug}}/edit">
+                <span class="icon is-small">
+                  {{{icon("edit")}}}
+                </span>
+              </a>
+            </p>
+            <p class="control">
+              <button class="button is-small is-danger" @click="deletePost">
+                <span class="icon is-small">
+                  {{{icon("trash-2")}}}
+                </span>
+              </button>
+            </p>
+          @else
+            <div class="control">
+              <button class="button is-small">
+                <span class="icon is-small">{{{icon("heart")}}}</span>
+              </button>
+            </div>
+            <div class="control">
+              <button class="button is-small">
+                <span class="icon is-small">{{{icon("bookmark")}}}</span>
+              </button>
+            </div>
+          @end
+        </div>
+        <!-- <button class="button is-inverted is-outlined is-small level-item">
+          <span class="icon is-small">{{{icon("trash-2")}}}</span>
+          </button> -->
+      </div>
+    </div>
+  </div>
+</div>
