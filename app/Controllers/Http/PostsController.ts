@@ -22,10 +22,13 @@ export default class PostsController {
     return { post, content };
   }
 
-  public async show({ request, view }: HttpContextContract) {
+  public async show({ request, view, bouncer }: HttpContextContract) {
     const slug = request.param("slug");
 
     const post = await this.findPostBySlug(slug);
+
+    await bouncer.authorize("viewPost", post.post);
+
     return view.render("post/show", post);
   }
 
@@ -89,7 +92,7 @@ export default class PostsController {
     await bouncer.authorize("modifyPost", post);
 
     if (coverImage?.isValid) {
-      post.coverImage = Attachment.fromFile(coverImage)
+      post.coverImage = Attachment.fromFile(coverImage);
     }
 
     post.published = published;

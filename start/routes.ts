@@ -6,7 +6,7 @@ Route.on("/").render("welcome");
 
 Route.get("/dashboard", async ({ view }) => {
   const posts = await Post.query()
-    .whereLike("published", true)
+    .where("published", true)
     .orderBy("created_at", "desc")
     .preload("user", (builder) => builder.preload("profile"))
     .limit(10)
@@ -46,18 +46,17 @@ Route.group(() => {
   Route.put("/api/post/:id", "PostsController.edit");
   Route.delete("/api/post/:id", "PostsController.destroy");
   Route.post("/api/post", "PostsController.create");
-  Route.post("/api/post/:id/save", async ({auth, request, response})=>{
-    const postId = request.param("id")
-    console.log(postId)
+  Route.post("/api/post/:id/save", async ({ auth, request, response }) => {
+    const postId = request.param("id");
+    console.log(postId);
     if (auth.user == null) {
-      throw response.unauthorized()
+      throw response.unauthorized();
     }
-    const savedPost = new SavedPost()
-    savedPost.userId = auth.user.id
-    savedPost.postId = parseInt(postId)
-    await savedPost.save()
-  })
+    const savedPost = new SavedPost();
+    savedPost.userId = auth.user.id;
+    savedPost.postId = parseInt(postId);
+    await savedPost.save();
+  });
 }).middleware("auth");
 
 Route.get("/:username", "UsersController.show");
-

@@ -31,11 +31,15 @@ import User from "../app/Models/User";
 | NOTE: Always export the "actions" const from this file
 |****************************************************************
 */
-export const { actions } = Bouncer
-  .define("modifyPost", (user: User, post: Post) => user.id === post.userId)
+export const { actions } = Bouncer.define(
+  "modifyPost",
+  (user: User, post: Post) => user.id === post.userId
+)
   .define("ownsPost", (user: User, post: Post) => post.userId === user.id)
   .define("likePost", (user: User, post: Post) => user.id !== post.userId)
-  .define("followUser", (authUser: User, user: User) => user.id !== authUser.id);
+  .define("followUser", (authUser: User, user: User) => user.id !== authUser.id)
+  // if post is published or user is owner
+  .define("viewPost", (user: User, post: Post) => post.published || user.id === post.userId);
 
 /*
 |--------------------------------------------------------------------------
