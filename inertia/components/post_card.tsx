@@ -44,7 +44,10 @@ const PostCard: FunctionalComponent<PostCardProps, Events> = (
             </figure>
           </div>
           <div class="card-content p-0 is-flex is-flex-direction-column">
-            <div class="content p-5 has-background-info-light is-desktop mb-0">
+            <div
+              class="content p-5 has-background-info-light is-desktop mb-0"
+              style={{ flex: 0 }}
+            >
               <div class="columns">
                 {post.user.profile?.avatar?.url && (
                   <div class="column pb-0 is-narrow">
@@ -78,7 +81,7 @@ const PostCard: FunctionalComponent<PostCardProps, Events> = (
                 {excerpt(post.content, 200)}
               </p>
             </div>
-            {user != null && !isOwnPost && (
+            {/*{user != null && !isOwnPost && (
               <div class="content p-5 has-background-info-light is-desktop mb-0">
                 <div class="field has-addons">
                   <div class="control">
@@ -90,7 +93,7 @@ const PostCard: FunctionalComponent<PostCardProps, Events> = (
                   </div>
                 </div>
               </div>
-            )}
+            )}*/}
           </div>
         </div>
       </div>

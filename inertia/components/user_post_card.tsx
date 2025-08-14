@@ -50,7 +50,7 @@ const UserPostCard: FunctionalComponent<Props, Events> = (props, context) => {
         <div class="level">
           <div class="level-left">
             <div class="field level-item has-addons">
-              {isOwnPost ? (
+              {isOwnPost && (
                 <>
                   <p class="control">
                     <Link
@@ -74,21 +74,6 @@ const UserPostCard: FunctionalComponent<Props, Events> = (props, context) => {
                       </span>
                     </button>
                   </p>
-                </>
-              ) : (
-                <>
-                  <div class="control">
-                    <button
-                      type="button"
-                      class="button is-small"
-                      onClick={onSave}
-                      aria-label="Save post"
-                    >
-                      <span class="icon is-small">
-                        <PhBookmark />
-                      </span>
-                    </button>
-                  </div>
                 </>
               )}
             </div>

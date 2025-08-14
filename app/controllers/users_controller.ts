@@ -33,7 +33,7 @@ export default class UsersController {
     const posts = await Post.query()
       .where("user_id", user.id)
       .orderBy("updated_at", "desc")
-      .preload("user");
+      .preload("user", (builder) => builder.preload("profile"));
 
     const visiblePosts = posts.filter(
       async (post) => await bouncer.with("PostPolicy").allows("view", post),

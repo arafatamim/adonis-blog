@@ -3,7 +3,7 @@ import type Post from "#models/post";
 import type Profile from "#models/profile";
 import type User from "#models/user";
 import { Link, router } from "@inertiajs/vue3";
-import UserPostCard from "~/components/user_post_card";
+import PostCard from "~/components/post_card";
 import { toRelative } from "~/utils";
 
 defineProps<{
@@ -73,26 +73,20 @@ const deletePost = (postId: number) => {
   </section>
 
   <section class="section">
-    <span class="title">
-      <h1>My Posts</h1>
-      <Link
-        v-if="isOwnProfile"
-        class="button my-4 is-link is-light"
-        href="/new"
-      >
-        <span class="icon">+</span>
-        <span>Write a new post...</span>
-      </Link>
-    </span>
+    <h1 class="title">
+      {{ isOwnProfile ? "My" : (profile?.name ?? "User") + "'s" }} Posts
+    </h1>
+    <Link v-if="isOwnProfile" class="button my-4 is-link is-light" href="/new">
+      <span class="icon">+</span>
+      <span>Write a new post...</span>
+    </Link>
     <div class="card-list">
       <template v-for="post in posts" :key="post.id">
-        <UserPostCard
+        <PostCard
           v-if="post.published || (user?.id === post.userId && !post.published)"
           :post="post"
           :user="user"
           :isOwnPost="isOwnProfile"
-          @delete-post="deletePost"
-          @save-post="savePost"
         />
       </template>
     </div>
