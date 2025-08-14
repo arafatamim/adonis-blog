@@ -21,6 +21,7 @@ export default function useSave(
         onSuccess: (page) => {
           isSaved.value = false;
           savesCount.value = Math.max(0, savesCount.value - 1);
+          router.reload({ only: ["savedPosts"] });
         },
       });
     } else {
@@ -34,6 +35,7 @@ export default function useSave(
           onSuccess: (page) => {
             isSaved.value = true;
             savesCount.value += 1;
+            router.reload({ only: ["savedPosts"] });
           },
         },
       );

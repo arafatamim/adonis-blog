@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import type Post from "#models/post";
 import type Profile from "#models/profile";
 import type User from "#models/user";
+import type { InferPageProps } from "@adonisjs/inertia/types";
+import type UsersController from "#controllers/users_controller";
+
 import { Link, router } from "@inertiajs/vue3";
 import PostCard from "~/components/post_card";
 import { toRelative } from "~/utils";
@@ -9,7 +11,8 @@ import { toRelative } from "~/utils";
 defineProps<{
   user?: User;
   profile?: Profile;
-  posts?: Post[];
+  posts?: InferPageProps<UsersController, "show">["posts"];
+  savedPosts?: InferPageProps<UsersController, "show">["savedPosts"];
   isOwnProfile?: boolean;
   csrfToken?: string;
 }>();
@@ -80,12 +83,33 @@ const deletePost = (postId: number) => {
       <span class="icon">+</span>
       <span>Write a new post...</span>
     </Link>
-    <div class="card-list">
+    <div class="card-list" v-if="user != null">
       <template v-for="post in posts" :key="post.id">
         <PostCard
-          v-if="post.published || (user?.id === post.userId && !post.published)"
+          v-if="post.published || (user.id === post.userId && !post.published)"
           :post="post"
-          :user="user"
+          :user="post.user!"
+          :isOwnPost="isOwnProfile"
+        />
+      </template>
+    </div>
+  </section>
+
+  <section
+    class="section"
+    v-if="isOwnProfile && savedPosts && savedPosts.length > 0"
+  >
+    <h1 class="title">Saved Posts</h1>
+    <div class="card-list">
+      <template v-for="savedPost in savedPosts" :key="savedPost.id">
+        <PostCard
+          v-if="
+            savedPost.post &&
+            (savedPost.post.published ||
+              (user?.id === savedPost.userId && !savedPost.post.published))
+          "
+          :post="savedPost.post"
+          :user="savedPost.user!"
           :isOwnPost="isOwnProfile"
         />
       </template>

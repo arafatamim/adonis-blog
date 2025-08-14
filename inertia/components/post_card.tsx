@@ -1,13 +1,13 @@
 import type { FunctionalComponent } from "vue";
 import { Link } from "@inertiajs/vue3";
-import type Post from "#models/post";
-import type User from "#models/user";
 import { toRelative } from "~/utils";
-import { PhHeart, PhBookmark } from "@phosphor-icons/vue";
+import type PostDto from "#dtos/post";
+import type UserDto from "#dtos/user";
+import type { Serialize } from "@tuyau/utils/types";
 
 type PostCardProps = {
-  post: Post;
-  user?: User;
+  post: Serialize<PostDto>;
+  user?: Serialize<UserDto>;
   isOwnPost?: boolean;
 };
 
@@ -49,7 +49,7 @@ const PostCard: FunctionalComponent<PostCardProps, Events> = (
               style={{ flex: 0 }}
             >
               <div class="columns">
-                {post.user.profile?.avatar?.url && (
+                {post.user?.profile?.avatar?.url && (
                   <div class="column pb-0 is-narrow">
                     <img
                       class="avatar"
@@ -60,11 +60,11 @@ const PostCard: FunctionalComponent<PostCardProps, Events> = (
                 )}
                 <div class="column">
                   <div class="is-size-6">
-                    <Link href={`/${post.user.username}`}>
+                    <Link href={`/${post.user?.username}`}>
                       <span class="has-text-weight-semibold">
-                        {post.user.profile?.name}
+                        {post.user?.profile?.name}
                       </span>{" "}
-                      <span class="has-text-grey">@{post.user.username}</span>
+                      <span class="has-text-grey">@{post.user?.username}</span>
                     </Link>
                   </div>
                   <div class="is-size-6">{toRelative(post.updatedAt)}</div>
@@ -73,7 +73,7 @@ const PostCard: FunctionalComponent<PostCardProps, Events> = (
             </div>
             <div class="content p-5 has-text-grey-light mb-0">
               <h3>
-                <Link href={`/${post.user.username}/${post.slug}`}>
+                <Link href={`/${post.user?.username}/${post.slug}`}>
                   {post.title}
                 </Link>
               </h3>

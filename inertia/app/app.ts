@@ -8,6 +8,7 @@ import { createInertiaApp } from "@inertiajs/vue3";
 import { resolvePageComponent } from "@adonisjs/inertia/helpers";
 import "../css/app.css";
 import "bulma/css/bulma.min.css";
+import "@fontsource/poppins";
 import Layout from "~/layouts/layout.vue";
 
 const appName = import.meta.env.VITE_APP_NAME || "Blogpoint";

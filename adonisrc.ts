@@ -30,6 +30,7 @@ export default defineConfig({
     () => import("@adonisjs/lucid/commands"),
     () => import("@adonisjs/bouncer/commands"),
     () => import("@jrmc/adonis-attachment/commands"),
+    () => import('@adocasts.com/dto/commands')
   ],
 
   /*
