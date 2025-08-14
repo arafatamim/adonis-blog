@@ -1,8 +1,0 @@
-<div class="control">
-  <button
-    {{disabled ? "disabled": ""}}
-    class="button is-inverted is-outlined is-small level-item"
-    v-on:click="{{onclick}}">
-    <span class="icon is-small">{{{ await $slots.main() }}}</span>
-  </button>
-</div>

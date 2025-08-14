@@ -1,62 +1,91 @@
-import Route from "@ioc:Adonis/Core/Route";
-import Post from "App/Models/Post";
-import SavedPost from "App/Models/SavedPost";
+import Post from "#models/post";
+import router from "@adonisjs/core/services/router";
+import { middleware } from "./kernel.js";
+import Profile from "#models/profile";
 
-Route.on("/").render("welcome");
+router
+  .get("/", async ({ inertia, auth }) => {
+    const posts = await Post.query()
+      .where("published", true)
+      .orderBy("created_at", "desc")
+      .preload("user", (builder) => builder.preload("profile"))
+      .limit(10)
+      .exec();
 
-Route.get("/dashboard", async ({ view }) => {
-  const posts = await Post.query()
-    .where("published", true)
-    .orderBy("created_at", "desc")
-    .preload("user", (builder) => builder.preload("profile"))
-    .limit(10)
-    .exec();
+    const profile =
+      auth.user != null
+        ? await Profile.findBy({
+            userId: auth.user.id,
+          })
+        : null;
 
-  return view.render("dashboard", { posts });
-});
+    return inertia.render("dashboard", { posts, profile });
+  })
+  .use(middleware.silentAuth());
 
-Route.group(() => {
-  Route.get("login", async ({ view, auth, response }) => {
-    const user = auth.user;
-    if (user != null) {
-      return response.redirect("/" + user.username);
-    } else {
-      return view.render("login");
-    }
-  });
-  Route.on("signup").render("signup");
+// auth
+router
+  .group(() => {
+    const authController = () => import("#controllers/auth_controller");
 
-  Route.post("logout", "AuthController.logout");
-  Route.post("login", "AuthController.login");
-  Route.post("signup", "AuthController.signup");
-});
+    router.get("login", async ({ inertia, auth, response }) => {
+      try {
+        const user = await auth.use("web").authenticate();
+        return response.redirect("/" + user.username);
+      } catch (error) {
+        console.error(error);
+        return inertia.render("login");
+      }
+    });
+    router.post("login", [authController, "login"]);
 
-Route.group(() => {
-  Route.get("/", "SettingsController.show");
-  Route.post("/", "SettingsController.edit");
-})
+    router.post("signup", [authController, "signup"]);
+    router.on("signup").renderInertia("signup");
+
+    router.post("logout", [authController, "logout"]);
+  })
+  .use(middleware.silentAuth());
+
+// settings
+const settingsController = () => import("#controllers/settings_controller");
+router
+  .group(() => {
+    router.get("/", [settingsController, "show"]);
+    router.post("/", [settingsController, "edit"]);
+  })
   .prefix("/settings")
-  .middleware("auth");
+  .use(middleware.auth());
 
-Route.get("/:username/:slug", "PostsController.show");
-Route.group(() => {
-  Route.get("/:username/:slug/edit", "PostsController.showEdit");
-  Route.on("/new").render("post/new");
+// posts
+const postsController = () => import("#controllers/posts_controller");
+router
+  .group(() => {
+    router.on("/new").renderInertia("post/new");
+    router.post("/new", [postsController, "create"]);
+  })
+  .middleware(middleware.auth());
 
-  Route.put("/api/post/:id", "PostsController.edit");
-  Route.delete("/api/post/:id", "PostsController.destroy");
-  Route.post("/api/post", "PostsController.create");
-  Route.post("/api/post/:id/save", async ({ auth, request, response }) => {
-    const postId = request.param("id");
-    console.log(postId);
-    if (auth.user == null) {
-      throw response.unauthorized();
-    }
-    const savedPost = new SavedPost();
-    savedPost.userId = auth.user.id;
-    savedPost.postId = parseInt(postId);
-    await savedPost.save();
-  });
-}).middleware("auth");
+router
+  .group(() => {
+    router.delete("/:id", [postsController, "destroy"]);
+    router.put("/:id", [postsController, "update"]);
 
-Route.get("/:username", "UsersController.show");
+    router.post("/:id/save", [postsController, "save"]);
+    router.delete("/:id/save", [postsController, "unsave"]);
+  })
+  .prefix("/posts")
+  .middleware(middleware.auth());
+
+router
+  .get("/:username/:slug/edit", [postsController, "showEdit"])
+  .middleware(middleware.auth());
+
+router
+  .get("/:username/:slug", [postsController, "show"])
+  .use(middleware.silentAuth());
+
+// user
+const usersController = () => import("#controllers/users_controller");
+router
+  .get("/:username", [usersController, "show"])
+  .use(middleware.silentAuth());
