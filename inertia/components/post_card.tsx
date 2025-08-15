@@ -39,8 +39,13 @@ const PostCard: FunctionalComponent<PostCardProps, Events> = (
         <div class="media">
           {post.user?.profile?.avatar?.url && (
             <div class="media-left">
-              <figure class="image is-48x48 is-rounded">
-                <img src={post.user.profile.avatar.url} alt="Avatar image" />
+              <figure class="image is-48x48">
+                <img
+                  src={post.user.profile.avatar.url}
+                  alt="Avatar image"
+                  class="is-rounded"
+                  style={{ width: "48px", height: "48px", objectFit: "cover" }}
+                />
               </figure>
             </div>
           )}

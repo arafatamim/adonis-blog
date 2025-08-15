@@ -53,18 +53,24 @@ const toggleFollow = async () => {
 <template>
   <section class="hero">
     <div class="hero-body">
-      <figure v-if="profile?.avatar">
+      <figure v-if="profile?.avatar" class="is-rounded">
         <img
           :src="profile.avatar.url"
-          width="128"
           height="128"
+          width="128"
           alt="User avatar"
-          class="is-rounded avatar"
+          class="mb-4"
+          style="
+            border-radius: 100%;
+            width: 128px;
+            height: 128px;
+            object-fit: cover;
+          "
         />
       </figure>
       <p class="title">{{ profile?.name ?? `@${user?.username}` }}</p>
       <p class="subtitle" v-if="profile">
-        {{ profile.bio ?? "User" }}
+        {{ profile.bio ?? "Writer" }}
         <template v-if="profile?.location">
           <span> • {{ profile.location }}</span>
         </template>
