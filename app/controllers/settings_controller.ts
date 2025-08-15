@@ -48,4 +48,13 @@ export default class SettingsController {
       return response.redirect("/login");
     }
   }
+
+  public async deleteAccount({ auth, response }: HttpContext) {
+    const user = await auth.use("web").authenticate();
+    await auth.use("web").logout();
+
+    await user.delete();
+
+    return response.redirect("/");
+  }
 }

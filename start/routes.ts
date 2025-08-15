@@ -3,6 +3,7 @@ import router from "@adonisjs/core/services/router";
 import { middleware } from "./kernel.js";
 import Profile from "#models/profile";
 import PostDto from "#dtos/post";
+import SettingsController from "#controllers/settings_controller";
 
 const UsersController = () => import("#controllers/users_controller");
 
@@ -124,6 +125,9 @@ router
     ]);
   })
   .middleware(middleware.auth());
+
+// delete user
+router.delete("/users/delete", [SettingsController, "deleteAccount"]);
 
 // user
 router

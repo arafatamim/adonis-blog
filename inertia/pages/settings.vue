@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useForm } from "@inertiajs/vue3";
+import { router, useForm } from "@inertiajs/vue3";
 import { ref } from "vue";
 import type User from "#models/user";
 import type Profile from "#models/profile";
@@ -63,13 +63,13 @@ const submitPassword = () => {
   passwordForm.post("/settings/password");
 };
 
-const deleteAccount = () => {
+const deleteAccountSubmit = () => {
   if (
     confirm(
       "Are you sure you want to delete your account? This action cannot be undone.",
     )
   ) {
-    // Implementation for account deletion
+    router.delete("/users/delete");
   }
 };
 </script>
@@ -288,13 +288,15 @@ const deleteAccount = () => {
     <!-- Danger zone section -->
     <section class="section">
       <h1 class="title">Danger zone</h1>
-      <div class="field">
-        <div class="control">
-          <button class="button is-danger" @click="deleteAccount">
-            Delete my account
-          </button>
+      <form @submit.prevent="deleteAccountSubmit">
+        <div class="field">
+          <div class="control">
+            <button class="button is-danger" type="submit">
+              Delete my account
+            </button>
+          </div>
         </div>
-      </div>
+      </form>
     </section>
   </div>
 </template>

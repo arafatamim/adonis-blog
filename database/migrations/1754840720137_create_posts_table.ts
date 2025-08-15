@@ -11,7 +11,11 @@ export default class extends BaseSchema {
       table.text("content").notNullable();
       table.boolean("published").notNullable().defaultTo(false);
       table.string("slug").notNullable().unique();
-      table.integer("user_id").notNullable().unsigned().references("users.id");
+      table
+        .foreign("user_id")
+        .references("id")
+        .inTable("users")
+        .onDelete("CASCADE");
 
       table.timestamp("created_at");
       table.timestamp("updated_at");

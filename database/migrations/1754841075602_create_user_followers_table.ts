@@ -6,16 +6,8 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments("id").primary();
-      table
-        .integer("user_id")
-        .unsigned()
-        .references("users.id")
-        .onDelete("CASCADE");
-      table
-        .integer("follower_id")
-        .unsigned()
-        .references("users.id")
-        .onDelete("CASCADE");
+      table.foreign("user_id").references("users.id").onDelete("CASCADE");
+      table.foreign("follower_id").references("users.id").onDelete("CASCADE");
       table.unique(["user_id", "follower_id"]);
 
       table.timestamp("created_at");
