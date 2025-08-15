@@ -7,19 +7,45 @@ import type UsersController from "#controllers/users_controller";
 import { Link, router } from "@inertiajs/vue3";
 import PostCard from "~/components/post_card";
 import { toRelative } from "~/utils";
+import { ref } from "vue";
 
-defineProps<{
+const props = defineProps<{
   user?: User;
   profile?: Profile;
   posts?: InferPageProps<UsersController, "show">["posts"];
   savedPosts?: InferPageProps<UsersController, "show">["savedPosts"];
+  followStatus?: InferPageProps<UsersController, "show">["followStatus"];
   isOwnProfile?: boolean;
   csrfToken?: string;
 }>();
 
-const deletePost = (postId: number) => {
-  if (confirm("Are you sure you want to delete this post?")) {
-    router.delete(`/posts/${postId}`);
+const isFollowing = ref(props.followStatus?.isFollowing ?? false);
+const followerCount = ref<number>(props.followStatus?.followerCount ?? 0);
+const followingCount = ref<number>(props.followStatus?.followingCount ?? 0);
+
+const toggleFollow = async () => {
+  if (!props.user || !props.profile) return;
+
+  if (isFollowing.value) {
+    router.delete(`/users/${props.profile?.userId}/follow`, {
+      onSuccess: () => {
+        isFollowing.value = false;
+        followerCount.value -= 1;
+      },
+      onError: () => {
+        isFollowing.value = true;
+      },
+    });
+  } else {
+    router.post(`/users/${props.profile?.userId}/follow`, undefined, {
+      onSuccess: () => {
+        isFollowing.value = true;
+        followerCount.value += 1;
+      },
+      onError: () => {
+        isFollowing.value = false;
+      },
+    });
   }
 };
 </script>
@@ -38,9 +64,7 @@ const deletePost = (postId: number) => {
       </figure>
       <p class="title">{{ profile?.name ?? `@${user?.username}` }}</p>
       <p class="subtitle" v-if="profile">
-        <template v-if="profile?.bio">
-          {{ profile.bio }}
-        </template>
+        {{ profile.bio ?? "User" }}
         <template v-if="profile?.location">
           <span> • {{ profile.location }}</span>
         </template>
@@ -62,15 +86,33 @@ const deletePost = (postId: number) => {
             <button type="submit" class="button">Logout</button>
           </form>
         </div>
-        <button
-          v-else
-          class="button"
-          disabled
-          :data-uid="user.id"
-          id="btn-follow"
+        <div
+          v-if="user != null && !isOwnProfile"
+          class="mt-3 mb-4 is-flex is-align-items-center"
         >
-          Follow
-        </button>
+          <button
+            :class="['button', isFollowing && 'is-primary', 'mr-3']"
+            :disabled="followStatus == null"
+            @click="toggleFollow"
+            id="btn-follow"
+            style="min-width: 110px"
+          >
+            {{ isFollowing ? "Following" : "Follow" }}
+          </button>
+        </div>
+        <span class="has-text-grey-dark is-size-6">
+          <Link :href="`/${profile?.user?.username}/followers`">
+            <span class="has-text-weight-semibold">{{ followerCount }}</span>
+            <span class="ml-1"
+              >follower{{ followerCount === 1 ? "" : "s" }}</span
+            >
+          </Link>
+          <span class="mx-2 has-text-grey-light">•</span>
+          <Link :href="`/${profile?.user?.username}/following`">
+            <span class="has-text-weight-semibold">{{ followingCount }}</span>
+            <span class="ml-1">following</span>
+          </Link>
+        </span>
       </template>
     </div>
   </section>
@@ -83,9 +125,10 @@ const deletePost = (postId: number) => {
       <span class="icon">+</span>
       <span>Write a new post...</span>
     </Link>
-    <div class="card-list" v-if="user != null">
+    <div class="columns is-0 is-desktop" style="gap: 1rem" v-if="user != null">
       <template v-for="post in posts" :key="post.id">
         <PostCard
+          class="column is-4"
           v-if="post.published || (user.id === post.userId && !post.published)"
           :post="post"
           :user="post.user!"
@@ -100,9 +143,10 @@ const deletePost = (postId: number) => {
     v-if="isOwnProfile && savedPosts && savedPosts.length > 0"
   >
     <h1 class="title">Saved Posts</h1>
-    <div class="card-list">
+    <div class="columns is-0 is-desktop" style="gap: 1rem">
       <template v-for="savedPost in savedPosts" :key="savedPost.id">
         <PostCard
+          class="column is-4"
           v-if="
             savedPost.post &&
             (savedPost.post.published ||

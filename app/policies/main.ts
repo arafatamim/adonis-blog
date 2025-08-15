@@ -13,5 +13,6 @@
 */
 
 export const policies = {
+  FollowPolicy: () => import("#policies/follow_policy"),
   PostPolicy: () => import("#policies/post_policy"),
 };

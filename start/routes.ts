@@ -2,6 +2,9 @@ import Post from "#models/post";
 import router from "@adonisjs/core/services/router";
 import { middleware } from "./kernel.js";
 import Profile from "#models/profile";
+import PostDto from "#dtos/post";
+
+const UsersController = () => import("#controllers/users_controller");
 
 router
   .get("/", async ({ inertia, auth }) => {
@@ -19,7 +22,23 @@ router
           })
         : null;
 
-    return inertia.render("dashboard", { posts, profile });
+    const followingsPosts =
+      auth.user != null
+        ? await Post.query()
+            .select("posts.*", "users.username as author_username")
+            .join("user_followers", "user_followers.user_id", "posts.user_id")
+            .join("users", "users.id", "posts.user_id")
+            .where("user_followers.follower_id", auth.user.id)
+            .andWhere("posts.published", true)
+            .orderBy("posts.created_at", "desc")
+            .preload("user", (builder) => builder.preload("profile"))
+        : null;
+
+    return inertia.render("dashboard", {
+      posts,
+      profile,
+      followingsPosts: followingsPosts?.map((post) => new PostDto(post)),
+    });
   })
   .use(middleware.silentAuth());
 
@@ -56,6 +75,15 @@ router
   .prefix("/settings")
   .use(middleware.auth());
 
+// user follows
+router
+  .group(() => {
+    router.get("/followers", [UsersController, "followers"]);
+    router.get("/following", [UsersController, "following"]);
+  })
+  .prefix("/:username")
+  .middleware(middleware.auth());
+
 // posts
 const postsController = () => import("#controllers/posts_controller");
 router
@@ -84,8 +112,20 @@ router
   .get("/:username/:slug", [postsController, "show"])
   .use(middleware.silentAuth());
 
-// user
-const usersController = () => import("#controllers/users_controller");
+// follows
+const FollowsController = () => import("#controllers/follows_controller");
 router
-  .get("/:username", [usersController, "show"])
+  .group(() => {
+    router.post("/users/:id/follow", [FollowsController, "follow"]);
+    router.delete("/users/:id/follow", [FollowsController, "unfollow"]);
+    router.get("/users/:id/follow-status", [
+      FollowsController,
+      "checkFollowingStatus",
+    ]);
+  })
+  .middleware(middleware.auth());
+
+// user
+router
+  .get("/:username", [UsersController, "show"])
   .use(middleware.silentAuth());

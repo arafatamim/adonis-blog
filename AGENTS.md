@@ -14,7 +14,7 @@
 ## Code Style Guidelines
 
 - **Imports:** Use ES module syntax and path aliases (e.g., `#models/user`).
-- **Formatting:** Enforced by Prettier and ESLint. Use semicolons, smart `eqeqeq`.
+- **Formatting:** Enforced by Prettier and ESLint. Use semicolons, double quotes for strings, and smart `eqeqeq`.
 - **Types:** Use TypeScript everywhere. Prefer explicit types for functions, models, and variables.
 - **Naming:** PascalCase for classes, camelCase for variables/functions, UPPER_CASE for constants.
 - **Error Handling:** Use AdonisJS 6 response helpers (e.g., `response.notFound`). Always check for null/undefined.

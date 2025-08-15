@@ -43,8 +43,25 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @hasMany(() => Post)
   declare posts: HasMany<typeof Post>;
 
-  @manyToMany(() => User)
+  @manyToMany(() => User, {
+    pivotTable: "user_followers",
+    localKey: "id",
+    pivotForeignKey: "user_id",
+    relatedKey: "id",
+    pivotRelatedForeignKey: "follower_id",
+    pivotTimestamps: true,
+  })
   declare followers: ManyToMany<typeof User>;
+
+  @manyToMany(() => User, {
+    pivotTable: "user_followers",
+    localKey: "id",
+    pivotForeignKey: "follower_id",
+    relatedKey: "id",
+    pivotRelatedForeignKey: "user_id",
+    pivotTimestamps: true,
+  })
+  declare following: ManyToMany<typeof User>;
 
   @hasMany(() => SavedPost)
   declare likedPosts: HasMany<typeof SavedPost>;
