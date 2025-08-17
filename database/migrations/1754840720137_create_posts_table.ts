@@ -12,7 +12,9 @@ export default class extends BaseSchema {
       table.boolean("published").notNullable().defaultTo(false);
       table.string("slug").notNullable().unique();
       table
-        .foreign("user_id")
+        .integer("user_id")
+        .unsigned()
+        .notNullable()
         .references("id")
         .inTable("users")
         .onDelete("CASCADE");

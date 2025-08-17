@@ -6,20 +6,46 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments("id").primary();
-      table.string("content").notNullable();
+      table.text("content").notNullable();
       table
-        .foreign("user_id")
+        .integer("parent_comment_id")
+        .unsigned()
+        .references("id")
+        .inTable("comments")
+        .nullable()
+        .onDelete("CASCADE");
+      table
+        .integer("user_id")
         .references("id")
         .inTable("users")
+        .notNullable()
         .onDelete("CASCADE");
       table
         .integer("post_id")
+        .references("id")
+        .inTable("posts")
         .notNullable()
-        .references("posts.id")
         .onDelete("CASCADE");
 
-      table.timestamp("created_at");
-      table.timestamp("updated_at");
+      // threading
+      table.integer("depth").unsigned().defaultTo(0);
+      table.string("thread_path").nullable();
+
+      // performance counters
+      table.integer("replies_count").unsigned().defaultTo(0);
+
+      // flags
+      table.boolean("is_deleted").defaultTo(false);
+
+      // timestamps
+      table.timestamp("created_at").notNullable();
+      table.timestamp("updated_at").notNullable();
+
+      // indexes
+      table.index(["post_id", "created_at"]);
+      table.index(["parent_comment_id"]);
+      table.index(["user_id"]);
+      table.index(["thread_path"]);
     });
   }
 
