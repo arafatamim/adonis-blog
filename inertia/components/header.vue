@@ -6,13 +6,15 @@ import { PhPlus } from "@phosphor-icons/vue";
 
 const isActive = ref(false);
 
-defineProps<{ user?: User; csrfToken?: string }>();
+const props = defineProps<{ user?: User; csrfToken?: string }>();
+
+const isLoggedIn = props.user?.username != null;
 </script>
 
 <template>
   <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
-      <Link class="navbar-item" href="/"> Blogpoint </Link>
+      <Link class="navbar-item" href="/">Blogpoint</Link>
 
       <a
         role="button"
@@ -35,7 +37,7 @@ defineProps<{ user?: User; csrfToken?: string }>();
       </div>
 
       <div class="navbar-end">
-        <template v-if="user != null">
+        <template v-if="isLoggedIn && user != null">
           <div class="navbar-item">
             <div class="field">
               <p class="control">
