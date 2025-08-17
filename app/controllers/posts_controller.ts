@@ -1,8 +1,13 @@
+import Comment from "#models/comment";
+import CommentDto from "#dtos/comment";
 import Post from "#models/post";
 import SavedPost from "#models/saved_post";
 import { postValidator } from "#validators/post";
 import type { HttpContext } from "@adonisjs/core/http";
 import { attachmentManager } from "@jrmc/adonis-attachment";
+import PostDto from "#dtos/post";
+import User from "#models/user";
+import UserDto from "#dtos/user";
 
 export default class PostsController {
   private async findPostBySlug(slug: string): Promise<Post | null> {
@@ -39,9 +44,11 @@ export default class PostsController {
     let isSaved = false;
     let savesCount = 0;
 
-    if (auth.user) {
+    let user: User | null | undefined = auth.user;
+
+    if (user) {
       const savedPost = await SavedPost.findBy({
-        userId: auth.user.id,
+        userId: user.id,
         postId: post.id,
       });
       isSaved = !!savedPost;
@@ -51,13 +58,29 @@ export default class PostsController {
         .count("* as total");
 
       savesCount = Number.parseInt(savedPosts[0]?.$extras?.total || 0);
+
+      // also get user with profile
+      user = await User.query().where("id", user.id).preload("profile").first();
     }
 
+    const flatComments = await Comment.query()
+      .where("post_id", post.id)
+      .preload("user", (userQuery) => {
+        userQuery.preload("profile");
+      })
+      .preload("parentComment", (q) => q.preload("user"))
+      .orderBy("thread_path", "desc")
+      .orderBy("created_at", "desc");
+
+    const comments = CommentDto.buildTree(flatComments);
+
     return inertia.render("post/show", {
-      post,
+      user: new UserDto(user ?? undefined),
+      post: new PostDto(post),
       isOwnPost: auth.user?.id === post.userId,
       isSaved,
       savesCount,
+      comments,
     });
   }
 

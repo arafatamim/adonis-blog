@@ -33,4 +33,9 @@ export default class PostPolicy extends BasePolicy {
     // author cannot save own post
     return post.published && post.userId !== user.id;
   }
+
+  comment(user: User, post: Post): AuthorizerResponse {
+    // only logged-in users can comment on published posts
+    return post.published;
+  }
 }

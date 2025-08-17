@@ -3,7 +3,6 @@ import router from "@adonisjs/core/services/router";
 import { middleware } from "./kernel.js";
 import Profile from "#models/profile";
 import PostDto from "#dtos/post";
-import SettingsController from "#controllers/settings_controller";
 
 const UsersController = () => import("#controllers/users_controller");
 
@@ -67,11 +66,11 @@ router
   .use(middleware.silentAuth());
 
 // settings
-const settingsController = () => import("#controllers/settings_controller");
+const SettingsController = () => import("#controllers/settings_controller");
 router
   .group(() => {
-    router.get("/", [settingsController, "show"]);
-    router.post("/", [settingsController, "edit"]);
+    router.get("/", [SettingsController, "show"]);
+    router.post("/", [SettingsController, "edit"]);
   })
   .prefix("/settings")
   .use(middleware.auth());
@@ -84,6 +83,26 @@ router
   })
   .prefix("/:username")
   .middleware(middleware.auth());
+
+// comments
+const CommentsController = () => import("#controllers/comments_controller");
+router
+  .group(() => {
+    router.post("/posts/:postId/comments", [CommentsController, "create"]);
+    router.post("/comments/:commentId/replies", [CommentsController, "reply"]);
+    router.put("/comments/:id", [CommentsController, "update"]);
+    router.delete("/comments/:id", [CommentsController, "destroy"]);
+  })
+  .middleware(middleware.auth());
+
+// comment API routes
+router
+  .group(() => {
+    router.get("/posts/:postId/comments", [CommentsController, "index"]);
+    router.get("/comments/:commentId/thread", [CommentsController, "thread"]);
+  })
+  .prefix("/api")
+  .use(middleware.silentAuth());
 
 // posts
 const postsController = () => import("#controllers/posts_controller");

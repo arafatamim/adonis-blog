@@ -1,34 +1,58 @@
 <script setup lang="ts">
-import { Head, Link, router } from "@inertiajs/vue3";
-import type Post from "#models/post";
+import type PostsController from "#controllers/posts_controller";
 import type User from "#models/user";
+import { InferPageProps } from "@adonisjs/inertia/types";
+import { Head, Link, router } from "@inertiajs/vue3";
 import {
   PhBookmark,
+  PhCalendar,
+  PhClock,
   PhPencil,
   PhTrash,
-  PhClock,
-  PhCalendar,
 } from "@phosphor-icons/vue";
-import { toRelative } from "~/utils";
+import Comment from "~/components/comment";
+import CommentBox from "~/components/comment_box";
 import useSave from "~/composables/use_save";
 import type { PostMeta } from "~/types/post_meta";
+import { toRelative } from "~/utils";
 
 const props = defineProps<
   {
-    post: Post;
+    post: InferPageProps<PostsController, "show">["post"];
     user?: User;
     isOwnPost?: boolean;
+    comments?: InferPageProps<PostsController, "show">["comments"];
   } & PostMeta
 >();
 
-const { isSaved, savesCount, toggleSave } = useSave(props.post.id, {
-  isSaved: props.isSaved,
-  savesCount: props.savesCount,
-});
+const { toggleSave } = useSave(props.post.id, props.isSaved);
 
 const deletePost = () => {
   if (confirm("Are you sure you want to delete this post?")) {
     router.delete(`/posts/${props.post.id}`);
+  }
+};
+
+const handleNewComment = (content: string, parentCommentId: number) => {
+  console.log(parentCommentId);
+  router.post(
+    parentCommentId == null
+      ? `/posts/${props.post.id}/comments`
+      : `/comments/${parentCommentId}/replies`,
+    { content },
+    {
+      preserveScroll: true,
+      only: ["comments"],
+    },
+  );
+};
+
+const handleDeleteComment = (id: number) => {
+  if (confirm("Are you sure you want to delete this comment?")) {
+    router.delete(`/comments/${id}`, {
+      preserveScroll: true,
+      only: ["comments"],
+    });
   }
 };
 </script>
@@ -82,7 +106,7 @@ const deletePost = () => {
               <div class="media">
                 <div class="media-left">
                   <figure
-                    v-if="post.user.profile?.avatar"
+                    v-if="post?.user?.profile?.avatar"
                     class="image is-64x64"
                   >
                     <img
@@ -93,18 +117,23 @@ const deletePost = () => {
                     />
                   </figure>
                   <div v-else class="avatar-placeholder">
-                    {{ post.user.username.charAt(0).toUpperCase() }}
+                    {{ post?.user?.username.charAt(0).toUpperCase() }}
                   </div>
                 </div>
 
                 <div class="media-content">
-                  <Link :href="`/${post.user.username}`" class="has-text-dark">
+                  <Link
+                    :href="`/${post?.user?.username}`"
+                    class="has-text-dark"
+                  >
                     <p class="title is-5 mb-1">
-                      {{ post.user.profile?.name || post.user.username }}
+                      {{ post?.user?.profile?.name || post?.user?.username }}
                     </p>
-                    <p class="is-6 has-text-grey">@{{ post.user.username }}</p>
+                    <p class="is-6 has-text-grey">
+                      @{{ post?.user?.username }}
+                    </p>
                   </Link>
-                  <p v-if="post.user.profile?.bio" class="content">
+                  <p v-if="post?.user?.profile?.bio" class="content">
                     {{ post.user.profile.bio }}
                   </p>
                 </div>
@@ -118,23 +147,25 @@ const deletePost = () => {
                         :disabled="isOwnPost"
                         :class="[
                           'button',
-                          isSaved ? 'is-primary' : 'is-light',
+                          props.isSaved ? 'is-primary' : 'is-light',
                           { 'is-static': isOwnPost },
                         ]"
                       >
                         <span class="icon">
-                          <PhBookmark :weight="isSaved ? 'fill' : 'regular'" />
+                          <PhBookmark
+                            :weight="props.isSaved ? 'fill' : 'regular'"
+                          />
                         </span>
-                        <span>{{ isSaved ? "Saved" : "Save" }}</span>
-                        <span v-if="savesCount > 0"
-                          >&nbsp;({{ savesCount }})</span
+                        <span>{{ props.isSaved ? "Saved" : "Save" }}</span>
+                        <span v-if="props.savesCount > 0"
+                          >&nbsp;({{ props.savesCount }})</span
                         >
                       </button>
                     </div>
 
                     <div v-if="isOwnPost" class="control">
                       <Link
-                        :href="`/${post.user.username}/${post.slug}/edit`"
+                        :href="`/${post?.user?.username}/${post.slug}/edit`"
                         class="button is-info"
                       >
                         <span class="icon">
@@ -167,6 +198,21 @@ const deletePost = () => {
               ></div>
             </div>
           </div>
+
+          <section v-if="post.published">
+            <CommentBox @submit="handleNewComment"></CommentBox>
+
+            <div v-if="props.comments" v-for="comment in props.comments">
+              <Comment
+                class="mb-4"
+                :comment="comment"
+                :user="user"
+                @delete="handleDeleteComment"
+                @new-reply="handleNewComment"
+                :key="comment.id"
+              ></Comment>
+            </div>
+          </section>
         </div>
       </div>
     </div>

@@ -15,4 +15,5 @@
 export const policies = {
   FollowPolicy: () => import("#policies/follow_policy"),
   PostPolicy: () => import("#policies/post_policy"),
+  CommentPolicy: () => import("#policies/comment_policy"),
 };
