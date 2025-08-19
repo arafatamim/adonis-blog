@@ -1,0 +1,31 @@
+services:
+  app:
+    image: blogpoint:latest
+    ports:
+      - "3333:3333"
+    environment:
+      - TZ=UTC
+      - PORT=3333
+      - HOST=0.0.0.0
+      - LOG_LEVEL=info
+      - APP_KEY=RJpRqoY_AIcROwiLIncn0l8PrvIuJL6E
+      - NODE_ENV=production
+      - SESSION_DRIVER=cookie
+      - DRIVE_DISK=s3
+      - AWS_ACCESS_KEY_ID=C4DSTVBBIJOCIIP1W46J
+      - AWS_SECRET_ACCESS_KEY=iYbsM6E2LSp7kfxvjFBkEEiaFn+oJ+lav0ND1nBV
+      - AWS_REGION=us-east-1
+      - S3_BUCKET=default
+      - S3_ENDPOINT=http://192.168.0.100:9000
+      - DB_HOST=192.168.0.100
+      - DB_PORT=5432
+      - DB_USER=casaos
+      - DB_PASSWORD=casaos
+      - DB_DATABASE=casaos
+    restart: unless-stopped
+    networks:
+      - blogpoint-network
+
+networks:
+  blogpoint-network:
+    driver: bridge

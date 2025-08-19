@@ -8,6 +8,7 @@ import { attachmentManager } from "@jrmc/adonis-attachment";
 import PostDto from "#dtos/post";
 import User from "#models/user";
 import UserDto from "#dtos/user";
+import { RelationQueryBuilderContract } from "@adonisjs/lucid/types/relations";
 
 export default class PostsController {
   private async findPostBySlug(slug: string): Promise<Post | null> {
@@ -68,7 +69,11 @@ export default class PostsController {
       .preload("user", (userQuery) => {
         userQuery.preload("profile");
       })
-      .preload("parentComment", (q) => q.preload("user"))
+      .preload(
+        "parentComment",
+        (q: RelationQueryBuilderContract<typeof Comment, any>) =>
+          q.preload("user"),
+      )
       .orderBy("thread_path", "desc")
       .orderBy("created_at", "desc");
 
